@@ -1,13 +1,71 @@
-// login_screen.dart (modern UI - dark background)
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _rememberMe = false;
+
+  final supabase = Supabase.instance.client;
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password wajib diisi')),
+      );
+      return;
+    }
+
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      final userId = response.user?.id;
+      if (userId != null) {
+        final profile = await supabase
+            .from('profiles')
+            .select()
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (!mounted) return;
+
+        if (profile == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Data profil tidak ditemukan')),
+          );
+          return;
+        }
+
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        throw 'Login gagal: user tidak ditemukan.';
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D47A1), // Dark Blue Background
+      backgroundColor: const Color(0xFF0D47A1),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -31,6 +89,8 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   labelStyle: const TextStyle(color: Colors.black),
@@ -41,6 +101,7 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -53,7 +114,14 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Checkbox(value: false, onChanged: (val) {}),
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (val) {
+                      setState(() {
+                        _rememberMe = val ?? false;
+                      });
+                    },
+                  ),
                   const Text('Remember me', style: TextStyle(color: Colors.white)),
                   const Spacer(),
                   TextButton(
@@ -66,7 +134,7 @@ class LoginScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushReplacementNamed(context, '/dashboard'),
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

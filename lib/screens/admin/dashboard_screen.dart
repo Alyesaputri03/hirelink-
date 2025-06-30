@@ -1,7 +1,6 @@
-// dashboard_screen.dart (modern UI - updated with more jobs and refined UX)
 import 'package:flutter/material.dart';
-import 'job_detail_screen.dart';
-
+import '../../../widgets/sidebar.dart';
+import '../user/job_detail_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -44,13 +43,15 @@ class DashboardScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D47A1), // Dark Blue Background
+      backgroundColor: const Color(0xFF0D47A1),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
         actions: [
           IconButton(
@@ -81,6 +82,7 @@ class DashboardScreen extends StatelessWidget {
           )
         ],
       ),
+      drawer: const Sidebar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: ListView(
@@ -114,8 +116,8 @@ class DashboardScreen extends StatelessWidget {
                 itemCount: featuredJobs.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 16),
                 itemBuilder: (context, index) {
-                  final job = featuredJobs[index] as Map<String, dynamic>;
-                  final tags = job['tags'] as List<dynamic>? ?? [];
+                  final job = featuredJobs[index];
+                  final tags = job['tags'] ?? [];
 
                   return Container(
                     width: 260,
@@ -128,20 +130,20 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(job['title']?.toString() ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                        Text(job['title'] as String? ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 6,
-                          children: tags.map<Widget>((tag) {
-                            return Chip(
+                          children: List<Widget>.from(
+                            (tags as List).map((tag) => Chip(
                               label: Text(tag.toString()),
                               backgroundColor: Colors.teal.shade50,
-                            );
-                          }).toList(),
+                            )),
+                          ),
                         ),
                         const Spacer(),
-                        Text(job['salary']?.toString() ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                        Text(job['location']?.toString() ?? '', style: const TextStyle(color: Colors.grey)),
+                        Text(job['salary'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                        Text(job['location'] as String? ?? '', style: const TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );
@@ -162,9 +164,9 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(job['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
-                  subtitle: Text(job['location'] ?? '', style: const TextStyle(color: Colors.grey)),
-                  trailing: Text(job['salary'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
+                  title: Text(job['title'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
+                  subtitle: Text(job['location'] as String? ?? '', style: const TextStyle(color: Colors.grey)),
+                  trailing: Text(job['salary'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -175,7 +177,7 @@ class DashboardScreen extends StatelessWidget {
                   },
                 ),
               );
-            }).toList(),
+            })
           ],
         ),
       ),

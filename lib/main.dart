@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
-import 'login_screen.dart';
-import 'register_screen.dart';
-import 'dashboard_screen.dart';
-import 'screens/create_job_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'utils/constants.dart'; // Ambil URL & anon key dari sini
+import 'screens/splash_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/admin/dashboard_screen.dart';
+import 'screens/user/create_job_screen.dart';
 
-void main() {
+// Global Supabase client
+final supabase = Supabase.instance.client;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
+  );
+
   runApp(const HireLinkApp());
 }
 
