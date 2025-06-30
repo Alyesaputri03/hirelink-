@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../main.dart';
@@ -25,8 +25,21 @@ class _AddResumeScreenState extends State<AddResumeScreen> {
     );
 
     if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+      final fileExtension = file.extension?.toLowerCase();
+
+      if (fileExtension == null || !['pdf', 'doc', 'docx', 'jpg', 'png'].contains(fileExtension)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('❌ Format file tidak didukung.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
       setState(() {
-        selectedFile = result.files.first;
+        selectedFile = file;
       });
     }
   }
@@ -41,43 +54,74 @@ class _AddResumeScreenState extends State<AddResumeScreen> {
       if (userId == null) throw 'User belum login';
 
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedFile!.name}';
-      final filePath = 'resume/$userId/$fileName';
+      final storagePath = 'resume/$userId/$fileName';
+      String fileUrl;
 
-      final fileBytes = selectedFile!.bytes ??
-          await File(selectedFile!.path!).readAsBytes();
+      if (kIsWeb) {
+        if (selectedFile!.bytes == null) throw 'File tidak memiliki data bytes.';
+        fileUrl = await SupabaseService().uploadFileBytes(
+          bytes: selectedFile!.bytes!,
+          bucketName: 'resume-files',
+          filePath: storagePath,
+        );
+      } else {
+        if (selectedFile!.path == null) throw 'File path tidak tersedia.';
+        final file = File(selectedFile!.path!);
+        fileUrl = await SupabaseService().uploadFileFromMobile(
+          file: file,
+          bucketName: 'resume-files',
+          filePath: storagePath,
+        );
+      }
 
-      // Upload file ke bucket
-      final fileUrl = await SupabaseService().uploadFileBytes(
-        bytes: fileBytes,
-        bucketName: 'resume-files',
-        filePath: filePath,
-      );
+      if (fileUrl.isEmpty) throw 'Upload gagal: URL tidak valid';
 
-      debugPrint('File berhasil diupload ke: $fileUrl');
-
-      // Simpan URL file ke tabel resume
-      final insertResponse = await supabase.from('resume').insert({
+      await supabase.from('resume').insert({
         'user_id': userId,
         'file_url': fileUrl,
-        'created_at': DateTime.now().toIso8601String(), // opsional
-      }).select();
+        'created_at': DateTime.now().toIso8601String(),
+      });
 
-      debugPrint('Insert Response: $insertResponse');
+      if (!mounted) return;
+      setState(() {
+        selectedFile = null;
+        isLoading = false;
+      });
 
-      Get.snackbar('Sukses', 'Resume berhasil diupload');
-      setState(() => selectedFile = null);
+      // Tampilkan snackbar berhasil
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("✅ Resume berhasil diupload."),
+          backgroundColor: Colors.green.shade600,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Setelah snackbar selesai muncul, kembali ke halaman sebelumnya
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+
     } catch (e) {
       debugPrint('Upload Error: $e');
-      Get.snackbar('Error', e.toString());
-    }
+      if (!mounted) return;
+      setState(() => isLoading = false);
 
-    setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Upload gagal: $e'),
+          backgroundColor: Colors.red.shade400,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: const Color(0xFFF2F8FF),
       appBar: AppBar(
         title: const Text('Resume or CV'),
         backgroundColor: Colors.white,
@@ -90,68 +134,78 @@ class _AddResumeScreenState extends State<AddResumeScreen> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(16),
               color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.shade100.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            width: double.infinity,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const Icon(Icons.upload_file, color: Colors.blueAccent, size: 48),
+                const SizedBox(height: 12),
                 const Text(
-                  'Upload your CV or Resume and\nuse it when you apply for jobs',
+                  'Upload your CV or Resume\nand use it when applying for jobs',
                   style: TextStyle(
-                    color: Colors.black54,
+                    color: Colors.black87,
                     fontSize: 16,
+                    height: 1.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                GestureDetector(
-                  onTap: isLoading ? null : pickFile,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Upload a Doc/Docx/PDF',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black45,
-                      ),
+                ElevatedButton.icon(
+                  onPressed: isLoading ? null : pickFile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.folder_open),
+                  label: const Text("Pilih File CV/Resume"),
+                ),
+                if (selectedFile != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    selectedFile!.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed:
-                        isLoading || selectedFile == null ? null : uploadFile,
+                    onPressed: (isLoading || selectedFile == null) ? null : uploadFile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      backgroundColor: Colors.grey.shade800,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Upload Resume'),
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Upload Resume',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
-                if (selectedFile != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    'File: ${selectedFile!.name}',
-                    style: const TextStyle(color: Colors.black87),
-                  ),
-                ]
               ],
             ),
           ),

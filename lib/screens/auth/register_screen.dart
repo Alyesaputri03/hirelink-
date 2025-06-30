@@ -74,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // tutup dialog
+                  Navigator.of(context).pop();
                   Navigator.pushReplacementNamed(context, '/login');
                 },
                 child: const Text('OK'),
@@ -96,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA),
+      backgroundColor: const Color(0xFF0D47A1), // Biru tua
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -104,20 +104,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              const Text('Register',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal)),
+              const Text(
+                'Register',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Text('Already have an account? '),
+                  const Text(
+                    'Already have an account? ',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   GestureDetector(
                     onTap: () =>
                         Navigator.pushReplacementNamed(context, '/login'),
-                    child: const Text('Login',
-                        style: TextStyle(color: Colors.teal)),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -129,10 +140,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _firstNameController,
                       decoration: InputDecoration(
                         labelText: 'First Name',
+                        labelStyle: const TextStyle(color: Colors.black),
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                   ),
@@ -142,10 +155,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _lastNameController,
                       decoration: InputDecoration(
                         labelText: 'Last Name',
+                        labelStyle: const TextStyle(color: Colors.black),
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                   ),
@@ -157,10 +172,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
+                  labelStyle: const TextStyle(color: Colors.black),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -171,11 +188,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: InputDecoration(
                   labelText: 'Birth Date',
                   hintText: 'YYYY-MM-DD',
-                  suffixIcon: const Icon(Icons.calendar_today),
+                  labelStyle: const TextStyle(color: Colors.black),
+                  suffixIcon: const Icon(Icons.calendar_today, color: Colors.black),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -184,10 +203,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
+                  labelStyle: const TextStyle(color: Colors.black),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -196,10 +217,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  labelStyle: const TextStyle(color: Colors.black),
                   fillColor: Colors.white,
                   filled: true,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -208,9 +231,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text('Register'),

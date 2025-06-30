@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../screens/user/add_resume_screen.dart'; // ✅ pastikan file ini ada
+import '../../screens/user/add_resume_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -44,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0D47A1),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -56,15 +56,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Text(
                     'Edit',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -72,13 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Avatar
               avatarUrl != null
-                  ? CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(avatarUrl!),
-                    )
+                  ? CircleAvatar(radius: 50, backgroundImage: NetworkImage(avatarUrl!))
                   : const CircleAvatar(
                       radius: 50,
-                      backgroundColor: Colors.grey,
+                      backgroundColor: Colors.white24,
                       child: Icon(Icons.person, size: 40, color: Colors.white),
                     ),
               const SizedBox(height: 12),
@@ -86,11 +80,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Username
               Text(
                 username,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const Text(
                 'UX Designer',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 16, color: Colors.white70),
               ),
               const SizedBox(height: 20),
 
@@ -109,20 +103,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Resume',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Resume',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AddResumeScreen(), // ✅ navigasi
-                        ),
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const AddResumeScreen()),
                       );
                     },
-                    child: const Text('+ Add Resume'),
+                    child: const Text('+ Add Resume', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -130,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -138,18 +127,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Chip(
-                          label: const Text('CV'),
-                          backgroundColor: Colors.grey.shade300,
-                        ),
-                        Text(
-                          username,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Chip(
-                          label: const Text('PDF'),
-                          backgroundColor: Colors.grey.shade300,
-                        ),
+                        Chip(label: const Text('CV'), backgroundColor: Colors.teal.shade50),
+                        Text(username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Chip(label: const Text('PDF'), backgroundColor: Colors.teal.shade50),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -169,13 +149,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Portfolio',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   TextButton(
-                    onPressed: () {
-                      // Navigasi ke tambah portofolio nanti
-                    },
-                    child: const Text('+ Add Portfolio'),
+                    onPressed: () {},
+                    child: const Text('+ Add Portfolio', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -192,7 +170,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 itemBuilder: (context, index) {
                   return Container(
-                    color: Colors.grey.shade300,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   );
                 },
               ),
@@ -216,12 +197,12 @@ class _ProfileStat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const SizedBox(height: 4),
         Text(
           title,
-          style: TextStyle(color: Colors.grey.shade600),
+          style: TextStyle(color: Colors.white70),
         ),
       ],
     );
